@@ -16,66 +16,181 @@ function getComputerChoice() {
     return choice;
 }
 
-function getHumanChoice() {
-    let humanChoice = null
+function handleHumanChoice(e) {
+    choice = e.target.value;
+    console.log(choice);
+    const humanChoice = choice;
+    playRound(humanChoice)
+    humanScore.textContent = humanScore.value;
+}
 
-    while (true) {
-        humanChoice = prompt("What do you choose? rock, paper or scissor");
-
-        if (humanChoice != 'paper' && humanChoice != 'rock' && humanChoice != 'scissor'){
-            alert('Invalid option')
-        } else {
-            break;
-        }
-
+function updateScore(choice) {
+    switch(choice) {
+        case "human":
+            humanScore.textContent = humanScore.value;
+            return;
+        case "computer":
+            computerScore.textContent = computerScore.value;
+            return;
+        default:
+            return;
     }
-    
-    humanChoice = humanChoice.toLowerCase();
-
-    console.log(humanChoice);
-
-    return humanChoice;
 }
 
 
-function playRound() {
-    const humanChoice = getHumanChoice();
+function playRound(hChoice) {
+    const humanChoice = hChoice;
     const computerChoice = getComputerChoice();
 
     if (humanChoice === 'rock' && computerChoice === 'scissor') {
-        humanScore++;
+        humanScore.value++;
     } else if (humanChoice === 'paper' && computerChoice === 'rock'){
-        humanScore++;
+        humanScore.value++;
     } else if (humanChoice === 'scissor' && computerChoice === 'paper'){
-        humanScore++;
+        humanScore.value++;
     } else if (humanChoice === computerChoice){
-        console.log(`Its a draw!`);
+        result.textContent = "Its a draw!";
+        return;
     } else {
-        computerScore++;
-        console.log(`You lose! ${computerChoice} beats ${humanChoice}`);
+        computerScore.value++;
+        updateScore("computer");
+        result.textContent = `You lose! ${computerChoice} beats ${humanChoice}`;
         return;
     }
-    console.log(`You win! ${humanChoice} beats ${computerChoice}`);
+
+    updateScore("human");
+    result.textContent = `You win! ${humanChoice} beats ${computerChoice}`
 }
 
-function playGame(rounds) {
-    for (let i = 0; i < rounds; i++) {
-        playRound();
+function checkGameState() {
+    let gameEnd = 0;
+
+    if (humanScore.value === 5) {
+        result.textContent = `Congrats! Human wins`
+        gameEnd = 1;
+    } else if (computerScore.value === 5) {
+        result.textContent = `You are a failure, computer wins`
+        gameEnd = 1;
     }
 
-    console.log(humanScore)
-    console.log(computerScore)
-    
-    if (humanScore > computerScore) {
-        console.log(`Congrats! Human wins ${humanScore} vs ${computerScore}`)
-    } else {
-        console.log(`You are a failure, computer wins ${computerScore} vs ${humanScore}`)
-    }
+    if (gameEnd) hChoiceButton.forEach((btns) => {
+        btns.disabled = true;
+    });
 }
 
-let humanScore = 0, computerScore = 0;
+////////// Button setup
 
-playGame(5);
+
+let rockBtn = document.createElement("button");
+rockBtn.value = 'rock';
+rockBtn.textContent = rockBtn.value;
+
+let scissorBtn = document.createElement("button");
+scissorBtn.value = 'scissor';
+scissorBtn.textContent = scissorBtn.value;
+
+let paperBtn = document.createElement("button");
+paperBtn.value = 'paper';
+paperBtn.textContent = paperBtn.value;
+
+let buttonContainer = document.createElement("div");
+buttonContainer.className = 'button-container'
+buttonContainer.style.cssText = `
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+`;
+buttonContainer.append(rockBtn, paperBtn, scissorBtn);
+
+////////// Scoreboard setup
+
+let humanScore = document.createElement("p"), 
+        computerScore = document.createElement("p"),
+        humanText = document.createElement("p"),
+        computerText = document.createElement("p");
+
+let scoreContainer = document.createElement("div"),
+    humanContainer = document.createElement("div"),
+    computerContainer = document.createElement("div");
+
+humanScore.value = 0;
+humanScore.textContent = humanScore.value;
+humanText.textContent = "Human"
+
+computerScore.value = 0;
+computerScore.textContent = computerScore.value;
+computerText.textContent = "AI"
+
+
+
+humanContainer.append(humanScore, humanText);
+computerContainer.append(computerScore, computerText);
+
+humanContainer.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50px;
+    border: 1px solid blue;
+    padding: 2px;
+`;
+
+computerContainer.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid red;
+    padding: 2px;
+    width: 50px;
+`;
+
+scoreContainer.className = 'score-container'
+scoreContainer.append(humanContainer, computerContainer)
+scoreContainer.style.cssText = `
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+`;
+////////////////////
+
+let result = document.createElement("h3");
+result.textContent = "Choose an option";
+
+let optionContainer = document.createElement("div");
+optionContainer.append(result, buttonContainer);
+optionContainer.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+`;
+optionContainer.className = 'option-container';
+
+
+//////////// Appending buttons and scoreboard
+
+const gameContainer = document.createElement("div");
+gameContainer.append(scoreContainer, optionContainer);
+gameContainer.style.cssText = `
+    border: 2px dotted black;
+    width: 500px;
+    margin: 0 auto;
+    padding: 10px;
+`;
+
+document.body.append(gameContainer);
+
+
+const hChoiceButton = document.querySelectorAll("button");
+
+hChoiceButton.forEach((currentButton) => {
+    currentButton.addEventListener("click", (e) => {
+        handleHumanChoice(e);
+        checkGameState();
+    });
+});
+
+
 
 
 
